@@ -7,11 +7,12 @@
 <head>
     <meta charset="UTF-8">
     <title><c:out value="${eventDetails.event.title}"/></title>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/styles.css">
 </head>
 <body>
 <main>
     <p>
-        <a href="${pageContext.request.contextPath}/events">Back to events</a>
+        <a class="button" href="${pageContext.request.contextPath}/events">Back to events</a>
     </p>
 
     <h1><c:out value="${eventDetails.event.title}"/></h1>

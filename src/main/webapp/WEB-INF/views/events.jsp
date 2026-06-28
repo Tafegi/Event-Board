@@ -7,6 +7,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Event Board</title>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/styles.css">
 </head>
 <body>
 <main>
