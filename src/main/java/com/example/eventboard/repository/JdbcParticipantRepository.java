@@ -42,6 +42,24 @@ public class JdbcParticipantRepository implements ParticipantRepository {
         this.connectionFactory = connectionFactory;
     }
 
+    private void validateParticipantForSave(Participant participant) {
+        if (participant == null) {
+            throw new IllegalStateException("Participant must not be null");
+        }
+
+        if (participant.getEventId() == null) {
+            throw new IllegalStateException("Participant event id must not be null");
+        }
+
+        if (participant.getStudentName() == null || participant.getStudentName().isBlank()) {
+            throw new IllegalStateException("Participant student name must not be blank");
+        }
+
+        if (participant.getStudentEmail() == null || participant.getStudentEmail().isBlank()) {
+            throw new IllegalStateException("Participant student email must not be blank");
+        }
+    }
+
     @Override
     public List<Participant> findByEventId(long eventId) {
         List<Participant> participants = new ArrayList<>();
@@ -84,6 +102,8 @@ public class JdbcParticipantRepository implements ParticipantRepository {
 
     @Override
     public Participant save(Participant participant) {
+        validateParticipantForSave(participant);
+
         try (Connection connection = connectionFactory.getConnection();
              PreparedStatement statement = connection.prepareStatement(SAVE_SQL, Statement.RETURN_GENERATED_KEYS)) {
 

@@ -47,6 +47,24 @@ public class JdbcEventRepository implements EventRepository {
         this.connectionFactory = connectionFactory;
     }
 
+    private void validateEventForSave(Event event) {
+        if (event == null) {
+            throw new IllegalStateException("Event must not be null");
+        }
+
+        if (event.getTitle() == null || event.getTitle().isBlank()) {
+            throw new IllegalStateException("Event title must not be blank");
+        }
+
+        if (event.getEventDate() == null) {
+            throw new IllegalStateException("Event date must not be null");
+        }
+
+        if (event.getMaxSeats() <= 0) {
+            throw new IllegalStateException("Event max seats must be greater than zero");
+        }
+    }
+
     @Override
     public List<EventSummary> findUpcomingEvents() {
         List<EventSummary> events = new ArrayList<>();
@@ -86,6 +104,8 @@ public class JdbcEventRepository implements EventRepository {
 
     @Override
     public Event save(Event event) {
+        validateEventForSave(event);
+
         try (Connection connection = connectionFactory.getConnection();
              PreparedStatement statement = connection.prepareStatement(SAVE_SQL, Statement.RETURN_GENERATED_KEYS)) {
 
