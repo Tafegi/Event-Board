@@ -78,6 +78,8 @@ public class EventServlet extends HttpServlet {
             request.setAttribute("studentEmail", studentEmail);
 
             showEventPage(eventId, request, response);
+        } catch (EventNotFoundException e) {
+            showEventPage(eventId, request, response);
         }
     }
 

@@ -46,7 +46,7 @@ public class EventsServlet extends HttpServlet {
         String maxSeatsValue = request.getParameter("maxSeats");
 
         try {
-            LocalDate eventDate = LocalDate.parse(eventDateValue);
+            LocalDate eventDate = parseEventDate(eventDateValue);
             int maxSeats = Integer.parseInt(maxSeatsValue);
 
             eventService.createEvent(title, eventDate, maxSeats);
@@ -66,5 +66,13 @@ public class EventsServlet extends HttpServlet {
             throws ServletException, IOException {
         request.setAttribute("events", eventService.getUpcomingEvents());
         request.getRequestDispatcher(EVENTS_VIEW).forward(request, response);
+    }
+
+    private LocalDate parseEventDate(String eventDateValue) {
+        if (eventDateValue == null || eventDateValue.isBlank()) {
+            throw new ValidationException("Event date is required");
+        }
+
+        return LocalDate.parse(eventDateValue);
     }
 }
