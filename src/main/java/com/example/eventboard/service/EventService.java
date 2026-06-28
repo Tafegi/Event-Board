@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
+import java.util.Locale;
 
 public class EventService {
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
@@ -119,7 +120,7 @@ public class EventService {
             throw new ValidationException("Student email must not be blank");
         }
 
-        String normalizedEmail = studentEmail.trim().toLowerCase();
+        String normalizedEmail = studentEmail.trim().toLowerCase(Locale.ROOT);
 
         if (!EMAIL_PATTERN.matcher(normalizedEmail).matches()) {
             throw new ValidationException("Student email has invalid format");
