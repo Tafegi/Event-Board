@@ -16,7 +16,7 @@ public class EventSummary {
         this.eventDate = eventDate;
         this.maxSeats = maxSeats;
         this.registeredCount = registeredCount;
-        this.availableSeats = maxSeats - registeredCount;
+        this.availableSeats = Math.max(0, maxSeats - registeredCount);
     }
 
     public Long getId() {

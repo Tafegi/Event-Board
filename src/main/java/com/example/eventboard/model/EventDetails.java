@@ -1,6 +1,7 @@
 package com.example.eventboard.model;
 
 import java.util.List;
+import java.util.Objects;
 
 public class EventDetails {
     private final Event event;
@@ -8,9 +9,11 @@ public class EventDetails {
     private final int availableSeats;
 
     public EventDetails(Event event, List<Participant> participants) {
-        this.event = event;
-        this.participants = List.copyOf(participants);
-        this.availableSeats = event.getMaxSeats() - participants.size();
+        this.event = Objects.requireNonNull(event, "event must not be null");
+        this.participants = List.copyOf(
+                Objects.requireNonNull(participants, "participants must not be null")
+        );
+        this.availableSeats = Math.max(0, event.getMaxSeats() - participants.size());
     }
 
     public Event getEvent() {
