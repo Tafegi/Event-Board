@@ -1,6 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -16,7 +16,7 @@
         <h2>Create Event</h2>
 
         <c:if test="${not empty errorMessage}">
-            <p role="alert">${errorMessage}</p>
+            <p role="alert"><c:out value="${errorMessage}"/></p>
         </c:if>
 
         <form method="post" action="${pageContext.request.contextPath}/events">
@@ -26,7 +26,7 @@
                         type="text"
                         id="title"
                         name="title"
-                        value="${formTitle}"
+                        value="${fn:escapeXml(formTitle)}"
                         required>
             </div>
 
@@ -36,7 +36,7 @@
                         type="date"
                         id="eventDate"
                         name="eventDate"
-                        value="${formEventDate}"
+                        value="${fn:escapeXml(formEventDate)}"
                         required>
             </div>
 
@@ -47,7 +47,7 @@
                         id="maxSeats"
                         name="maxSeats"
                         min="1"
-                        value="${formMaxSeats}"
+                        value="${fn:escapeXml(formMaxSeats)}"
                         required>
             </div>
 
@@ -77,11 +77,11 @@
                     <tbody>
                     <c:forEach var="event" items="${events}">
                         <tr>
-                            <td>${event.title}</td>
-                            <td>${event.eventDate}</td>
-                            <td>${event.maxSeats}</td>
-                            <td>${event.registeredCount}</td>
-                            <td>${event.availableSeats}</td>
+                            <td><c:out value="${event.title}"/></td>
+                            <td><c:out value="${event.eventDate}"/></td>
+                            <td><c:out value="${event.maxSeats}"/></td>
+                            <td><c:out value="${event.registeredCount}"/></td>
+                            <td><c:out value="${event.availableSeats}"/></td>
                             <td>
                                 <a href="${pageContext.request.contextPath}/event?id=${event.id}">
                                     Open

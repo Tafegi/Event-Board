@@ -1,11 +1,12 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>${eventDetails.event.title}</title>
+    <title><c:out value="${eventDetails.event.title}"/></title>
 </head>
 <body>
 <main>
@@ -13,20 +14,20 @@
         <a href="${pageContext.request.contextPath}/events">Back to events</a>
     </p>
 
-    <h1>${eventDetails.event.title}</h1>
+    <h1><c:out value="${eventDetails.event.title}"/></h1>
 
     <section>
         <h2>Event Details</h2>
 
         <dl>
             <dt>Date</dt>
-            <dd>${eventDetails.event.eventDate}</dd>
+            <dd><c:out value="${eventDetails.event.eventDate}"/></dd>
 
             <dt>Max seats</dt>
-            <dd>${eventDetails.event.maxSeats}</dd>
+            <dd><c:out value="${eventDetails.event.maxSeats}"/></dd>
 
             <dt>Available seats</dt>
-            <dd>${eventDetails.availableSeats}</dd>
+            <dd><c:out value="${eventDetails.availableSeats}"/></dd>
         </dl>
     </section>
 
@@ -34,7 +35,7 @@
         <h2>Register Student</h2>
 
         <c:if test="${not empty errorMessage}">
-            <p role="alert">${errorMessage}</p>
+            <p role="alert"><c:out value="${errorMessage}"/></p>
         </c:if>
 
         <c:choose>
@@ -46,7 +47,7 @@
                                 type="text"
                                 id="studentName"
                                 name="studentName"
-                                value="${studentName}"
+                                value="${fn:escapeXml(studentName)}"
                                 required>
                     </div>
 
@@ -56,7 +57,7 @@
                                 type="email"
                                 id="studentEmail"
                                 name="studentEmail"
-                                value="${studentEmail}"
+                                value="${fn:escapeXml(studentEmail)}"
                                 required>
                     </div>
 
@@ -87,8 +88,8 @@
                     <tbody>
                     <c:forEach var="participant" items="${eventDetails.participants}">
                         <tr>
-                            <td>${participant.studentName}</td>
-                            <td>${participant.studentEmail}</td>
+                            <td><c:out value="${participant.studentName}"/></td>
+                            <td><c:out value="${participant.studentEmail}"/></td>
                         </tr>
                     </c:forEach>
                     </tbody>
