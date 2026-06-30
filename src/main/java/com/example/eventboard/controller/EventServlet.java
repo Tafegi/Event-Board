@@ -19,12 +19,20 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+/**
+ * Servlet responsible for handling requests related to specific events.
+ * It supports viewing event details and registering new participants.
+ */
 @WebServlet("/event")
 public class EventServlet extends HttpServlet {
     private static final String EVENT_VIEW = "/WEB-INF/views/event.jsp";
 
     private EventService eventService;
 
+    /**
+     * Initializes the servlet by instantiating the connection factory,
+     * repositories, and the event service required for processing requests.
+     */
     @Override
     public void init() {
         ConnectionFactory connectionFactory = new ConnectionFactory();
@@ -34,6 +42,15 @@ public class EventServlet extends HttpServlet {
         this.eventService = new EventService(eventRepository, participantRepository);
     }
 
+    /**
+     * Handles HTTP GET requests. Parses the event ID from the request
+     * and displays the corresponding event details page.
+     *
+     * @param request  the {@link HttpServletRequest} object that contains the request the client made to the servlet.
+     * @param response the {@link HttpServletResponse} object that contains the response the servlet returns to the client.
+     * @throws ServletException if the request for the GET could not be handled.
+     * @throws IOException      if an input or output error is detected when the servlet handles the GET request.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -46,6 +63,16 @@ public class EventServlet extends HttpServlet {
         showEventPage(eventId, request, response);
     }
 
+    /**
+     * Handles HTTP POST requests for participant registration.
+     * Extracts the event ID and participant details, attempts to register the participant,
+     * and handles validation, capacity, or duplication errors by returning to the event page with an error message.
+     *
+     * @param request  the {@link HttpServletRequest} object that contains the request the client made to the servlet.
+     * @param response the {@link HttpServletResponse} object that contains the response the servlet returns to the client.
+     * @throws ServletException if the request for the POST could not be handled.
+     * @throws IOException      if an input or output error is detected when the servlet handles the POST request.
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -83,6 +110,14 @@ public class EventServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Parses and validates the event ID from the request parameters.
+     *
+     * @param request  the {@link HttpServletRequest} containing the "id" parameter.
+     * @param response the {@link HttpServletResponse} used to send an error if validation fails.
+     * @return the parsed event ID if valid, or -1 if the ID is missing, non-positive, or not a number.
+     * @throws IOException if an error occurs while sending the error response.
+     */
     private long parseEventId(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String idValue = request.getParameter("id");
 
@@ -106,6 +141,16 @@ public class EventServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Retrieves event details and forwards the request to the event view page.
+     * Sends a 404 Not Found error if the event does not exist.
+     *
+     * @param eventId  the ID of the event to display.
+     * @param request  the {@link HttpServletRequest} object.
+     * @param response the {@link HttpServletResponse} object.
+     * @throws ServletException if a servlet-specific error occurs during forwarding.
+     * @throws IOException      if an I/O error occurs during forwarding or sending the error response.
+     */
     private void showEventPage(long eventId, HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {

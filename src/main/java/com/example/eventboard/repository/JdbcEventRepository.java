@@ -15,6 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * JDBC implementation of the {@link EventRepository}.
+ * Provides methods to interact with the underlying relational database for managing {@link Event} entities.
+ */
 public class JdbcEventRepository implements EventRepository {
     private static final String FIND_UPCOMING_EVENTS_SQL = """
             SELECT
@@ -43,10 +47,21 @@ public class JdbcEventRepository implements EventRepository {
 
     private final ConnectionFactory connectionFactory;
 
+    /**
+     * Constructs a new JDBC event repository.
+     *
+     * @param connectionFactory the factory used to obtain database connections.
+     */
     public JdbcEventRepository(ConnectionFactory connectionFactory) {
         this.connectionFactory = connectionFactory;
     }
 
+    /**
+     * Validates the properties of an event before attempting to save it to the database.
+     *
+     * @param event the {@link Event} to validate.
+     * @throws IllegalStateException if the event is null, or if its title, date, or max seats are invalid.
+     */
     private void validateEventForSave(Event event) {
         if (event == null) {
             throw new IllegalStateException("Event must not be null");
@@ -65,6 +80,13 @@ public class JdbcEventRepository implements EventRepository {
         }
     }
 
+    /**
+     * Retrieves a list of all upcoming events (events scheduled for today or in the future).
+     * Each summary includes the basic event details and the current number of registered participants.
+     *
+     * @return a {@link List} of {@link EventSummary} objects representing upcoming events, ordered by date ascending.
+     * @throws IllegalStateException if a database access error occurs.
+     */
     @Override
     public List<EventSummary> findUpcomingEvents() {
         List<EventSummary> events = new ArrayList<>();
@@ -83,6 +105,13 @@ public class JdbcEventRepository implements EventRepository {
         }
     }
 
+    /**
+     * Retrieves an event by its unique identifier.
+     *
+     * @param id the unique identifier of the event to find.
+     * @return an {@link Optional} containing the found {@link Event}, or an empty {@link Optional} if no event was found.
+     * @throws IllegalStateException if a database access error occurs.
+     */
     @Override
     public Optional<Event> findById(long id) {
         try (Connection connection = connectionFactory.getConnection();
@@ -102,6 +131,14 @@ public class JdbcEventRepository implements EventRepository {
         }
     }
 
+    /**
+     * Saves a new event to the database.
+     * Validates the event data prior to insertion and populates the returned event object with the auto-generated database ID.
+     *
+     * @param event the {@link Event} object to be saved.
+     * @return the saved {@link Event} object, updated with its generated database ID.
+     * @throws IllegalStateException if validation fails, the generated ID is not returned, or a database access error occurs.
+     */
     @Override
     public Event save(Event event) {
         validateEventForSave(event);
@@ -128,6 +165,13 @@ public class JdbcEventRepository implements EventRepository {
         }
     }
 
+    /**
+     * Maps a single row from the provided {@link ResultSet} to an {@link Event} object.
+     *
+     * @param resultSet the result set containing the database row.
+     * @return a mapped {@link Event} object.
+     * @throws SQLException if a database access error occurs or the column labels are not found.
+     */
     private Event mapEvent(ResultSet resultSet) throws SQLException {
         return new Event(
                 resultSet.getLong("id"),
@@ -137,6 +181,13 @@ public class JdbcEventRepository implements EventRepository {
         );
     }
 
+    /**
+     * Maps a single row from the provided {@link ResultSet} to an {@link EventSummary} object.
+     *
+     * @param resultSet the result set containing the database row.
+     * @return a mapped {@link EventSummary} object.
+     * @throws SQLException if a database access error occurs or the column labels are not found.
+     */
     private EventSummary mapEventSummary(ResultSet resultSet) throws SQLException {
         return new EventSummary(
                 resultSet.getLong("id"),

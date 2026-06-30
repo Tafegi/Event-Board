@@ -11,6 +11,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * JDBC implementation of the {@link ParticipantRepository}.
+ * Provides methods to interact with the underlying relational database for managing {@link Participant} entities.
+ */
 public class JdbcParticipantRepository implements ParticipantRepository {
     private static final String FIND_BY_EVENT_ID_SQL = """
             SELECT id, event_id, student_name, student_email
@@ -38,10 +42,21 @@ public class JdbcParticipantRepository implements ParticipantRepository {
 
     private final ConnectionFactory connectionFactory;
 
+    /**
+     * Constructs a new JDBC participant repository.
+     *
+     * @param connectionFactory the factory used to obtain database connections.
+     */
     public JdbcParticipantRepository(ConnectionFactory connectionFactory) {
         this.connectionFactory = connectionFactory;
     }
 
+    /**
+     * Validates the properties of a participant before attempting to save it to the database.
+     *
+     * @param participant the {@link Participant} to validate.
+     * @throws IllegalStateException if the participant is null, or if its event ID, name, or email are missing or blank.
+     */
     private void validateParticipantForSave(Participant participant) {
         if (participant == null) {
             throw new IllegalStateException("Participant must not be null");
@@ -60,6 +75,13 @@ public class JdbcParticipantRepository implements ParticipantRepository {
         }
     }
 
+    /**
+     * Retrieves a list of all participants registered for a specific event.
+     *
+     * @param eventId the unique identifier of the event.
+     * @return a {@link List} of {@link Participant} objects associated with the event, ordered by ID ascending.
+     * @throws IllegalStateException if a database access error occurs.
+     */
     @Override
     public List<Participant> findByEventId(long eventId) {
         List<Participant> participants = new ArrayList<>();
@@ -81,6 +103,13 @@ public class JdbcParticipantRepository implements ParticipantRepository {
         }
     }
 
+    /**
+     * Counts the total number of participants registered for a specific event.
+     *
+     * @param eventId the unique identifier of the event.
+     * @return the total count of registered participants.
+     * @throws IllegalStateException if a database access error occurs.
+     */
     @Override
     public int countByEventId(long eventId) {
         try (Connection connection = connectionFactory.getConnection();
@@ -100,6 +129,14 @@ public class JdbcParticipantRepository implements ParticipantRepository {
         }
     }
 
+    /**
+     * Saves a new participant to the database.
+     * Validates the participant data prior to insertion and populates the returned object with the auto-generated database ID.
+     *
+     * @param participant the {@link Participant} object to be saved.
+     * @return the saved {@link Participant} object, updated with its generated database ID.
+     * @throws IllegalStateException if validation fails, the generated ID is not returned, or a database access error occurs.
+     */
     @Override
     public Participant save(Participant participant) {
         validateParticipantForSave(participant);
@@ -126,6 +163,15 @@ public class JdbcParticipantRepository implements ParticipantRepository {
         }
     }
 
+    /**
+     * Checks if a participant with the specified email is already registered for a given event.
+     * The email comparison is case-insensitive.
+     *
+     * @param eventId the unique identifier of the event.
+     * @param email   the email address to check for existence.
+     * @return {@code true} if a participant with the given email is already registered for the event, {@code false} otherwise.
+     * @throws IllegalStateException if a database access error occurs.
+     */
     @Override
     public boolean existsByEventIdAndEmail(long eventId, String email) {
         try (Connection connection = connectionFactory.getConnection();
@@ -142,6 +188,13 @@ public class JdbcParticipantRepository implements ParticipantRepository {
         }
     }
 
+    /**
+     * Maps a single row from the provided {@link ResultSet} to a {@link Participant} object.
+     *
+     * @param resultSet the result set containing the database row.
+     * @return a mapped {@link Participant} object.
+     * @throws SQLException if a database access error occurs or the column labels are not found.
+     */
     private Participant mapParticipant(ResultSet resultSet) throws SQLException {
         return new Participant(
                 resultSet.getLong("id"),

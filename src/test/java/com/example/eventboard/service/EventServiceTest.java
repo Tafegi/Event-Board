@@ -22,11 +22,21 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.any;
 
+/**
+ * Unit tests for the {@link EventService} class.
+ * This class uses Mockito to isolate the service layer from the database layer,
+ * ensuring that the business logic (validation, seat checking, duplicate checking)
+ * works correctly under various scenarios.
+ */
 class EventServiceTest {
     private EventRepository eventRepository;
     private ParticipantRepository participantRepository;
     private EventService eventService;
 
+    /**
+     * Initializes the test environment before each test method runs.
+     * Mocks the dependencies (repositories) and creates a fresh instance of the service.
+     */
     @BeforeEach
     void setUp() {
         eventRepository = org.mockito.Mockito.mock(EventRepository.class);
@@ -34,6 +44,10 @@ class EventServiceTest {
         eventService = new EventService(eventRepository, participantRepository);
     }
 
+    /**
+     * Verifies that when valid event data is provided, the service normalizes the title,
+     * creates an event object, and successfully delegates saving to the repository.
+     */
     @Test
     void createEventSavesValidEvent() {
         LocalDate date = LocalDate.now().plusDays(5);
@@ -51,6 +65,10 @@ class EventServiceTest {
         assertEquals(20, saved.getMaxSeats());
     }
 
+    /**
+     * Verifies that attempting to create an event with a blank title throws a
+     * {@link ValidationException} and prevents any interaction with the repository.
+     */
     @Test
     void createEventRejectsBlankTitle() {
         assertThrows(ValidationException.class, () -> eventService.createEvent(" ", LocalDate.now().plusDays(1), 10));
@@ -58,6 +76,10 @@ class EventServiceTest {
         verify(eventRepository, never()).save(any(Event.class));
     }
 
+    /**
+     * Verifies that attempting to create an event with a date in the past throws a
+     * {@link ValidationException} and prevents the event from being saved.
+     */
     @Test
     void createEventRejectsPastDate() {
         assertThrows(ValidationException.class, () -> eventService.createEvent("Java Pro", LocalDate.now().minusDays(1), 10));
@@ -65,6 +87,10 @@ class EventServiceTest {
         verify(eventRepository, never()).save(any(Event.class));
     }
 
+    /**
+     * Verifies that attempting to create an event with zero or negative max seats throws a
+     * {@link ValidationException} and prevents the event from being saved.
+     */
     @Test
     void createEventRejectsInvalidMaxSeats() {
         assertThrows(ValidationException.class, () -> eventService.createEvent("Java Pro", LocalDate.now().plusDays(1), 0));
@@ -72,6 +98,11 @@ class EventServiceTest {
         verify(eventRepository, never()).save(any(Event.class));
     }
 
+    /**
+     * Verifies that a valid participant is successfully registered when the event exists,
+     * the email is not a duplicate, and there is capacity. Also checks that the participant's
+     * name is trimmed and email is normalized to lowercase.
+     */
     @Test
     void registerParticipantSavesWhenSeatsAreAvailable() {
         long eventId = 1L;
@@ -92,6 +123,10 @@ class EventServiceTest {
         assertEquals(eventId, saved.getEventId());
     }
 
+    /**
+     * Verifies that attempting to register a participant for a non-existent event ID throws an
+     * {@link EventNotFoundException} and halts the registration process.
+     */
     @Test
     void registerParticipantRejectsMissingEvent() {
         long eventId = 99L;
@@ -103,6 +138,10 @@ class EventServiceTest {
         verify(participantRepository, never()).save(any(Participant.class));
     }
 
+    /**
+     * Verifies that attempting to register an email that is already registered for the specific event
+     * throws a {@link DuplicateRegistrationException} and halts the registration process.
+     */
     @Test
     void registerParticipantRejectsDuplicateEmail() {
         long eventId = 1L;
@@ -116,6 +155,10 @@ class EventServiceTest {
         verify(participantRepository, never()).save(any(Participant.class));
     }
 
+    /**
+     * Verifies that attempting to register a participant when the event has reached its maximum
+     * capacity throws a {@link NoSeatsAvailableException} and halts the registration process.
+     */
     @Test
     void registerParticipantRejectsWhenNoSeatsAvailable() {
         long eventId = 1L;
@@ -130,6 +173,10 @@ class EventServiceTest {
         verify(participantRepository, never()).save(any(Participant.class));
     }
 
+    /**
+     * Verifies that providing an improperly formatted email address during registration throws a
+     * {@link ValidationException} and halts the registration process.
+     */
     @Test
     void registerParticipantRejectsInvalidEmail() {
         assertThrows(ValidationException.class, () -> eventService.registerParticipant(1L, "Alice", "invalid-email"));
@@ -137,6 +184,10 @@ class EventServiceTest {
         verify(participantRepository, never()).save(any(Participant.class));
     }
 
+    /**
+     * Verifies that providing a blank string for the student's name during registration throws a
+     * {@link ValidationException} and halts the registration process.
+     */
     @Test
     void registerParticipantRejectsBlankStudentName() {
         assertThrows(ValidationException.class, () -> eventService.registerParticipant(1L, " ", "alice@example.com"));
